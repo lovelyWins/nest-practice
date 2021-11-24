@@ -40,5 +40,35 @@ export class ProductService {
         return product
     }
 
+    // function for update product by id
+    async updateProduct(prodId: string, prodTitle: string, prodDescription: string, prodPrice: number) {
+
+
+        try {
+            const updatedProduct = await this.ProductModel.findById(prodId)
+            console.log(updatedProduct)
+
+            if (prodTitle) {
+                updatedProduct.title = prodTitle
+            }
+
+            if (prodDescription) {
+                updatedProduct.description = prodDescription
+            }
+
+            if (prodPrice) {
+                updatedProduct.price = prodPrice
+            }
+
+            await updatedProduct.save()
+        }
+
+        catch (e) {
+            throw new Error('failed to update')
+        }
+
+
+    }
+
 
 }
