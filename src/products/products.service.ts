@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from "./product.model"
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 
 @Injectable()
@@ -8,34 +10,35 @@ export class ProductService {
     // creating product array for now
     products: Product[] = []
 
+    constructor(@InjectModel('Product') private ProductModel: Model<Product>) { }
 
     // creating function that'll  insert product in that "products" array
-    insertProduct(title: string, desc: string, price: number) {
-        const prodId = Math.random().toString()
+    async insertProduct(title: string, description: string, price: number) {
         // creating new product instance
-        const newProduct = new Product(prodId, title, desc, price)
-        this.products.push(newProduct)
-        return prodId
+        const newProduct = await new this.ProductModel({ title: title, description: description, price: price })
+        await newProduct.save()
+        return newProduct
+
     }
 
     // function for get all products
     getProducts() {
         // simply returning this.products will return original products array, which is undesired
         // because if you want to edit that obj and return that edited version, it'll also update original obj
-        return [...this.products]
+        const products = this.ProductModel.find({})
+        return products
     }
 
 
     // function for get one product by id
-    getOneProduct(prodId: string) {
-        const product = this.products.filter(prod => prod.id === prodId)
+    async getOneProduct(prodId: string): Promise<Product> {
+        const product = await this.ProductModel.findById(prodId)
         // if we don't get product of given id
         if (!product) {
             throw new NotFoundException('could not find product')
         }
-        return { ...product }
+        return product
     }
 
-    
 
 }

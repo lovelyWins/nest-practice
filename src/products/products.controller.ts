@@ -11,13 +11,13 @@ export class ProductController {
   // creating post route
   // there is body decorator which we use to configure req body parameters
   @Post()
-  addProduct(
+  async addProduct(
     @Body('title') productTitle: string,
     @Body('description') productDesc: string,
     @Body('price') productPrice: number
-  ): any {
-    const generatedId = this.productService.insertProduct(productTitle, productDesc, productPrice)
-    return { id: generatedId }
+  ) {
+    await this.productService.insertProduct(productTitle, productDesc, productPrice)
+    return { message: "Product created" }
   }
 
   // creating path to get all products
@@ -30,7 +30,7 @@ export class ProductController {
   @Get(':id')
   getOneProduct(@Param('id') prodId: string) {
     const product = this.productService.getOneProduct(prodId)
-    return {...product}
+    return product
   }
 
 
