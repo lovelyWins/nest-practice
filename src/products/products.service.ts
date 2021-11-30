@@ -1,21 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from "./product.model"
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose'; ``
 import { Model } from 'mongoose';
+import { AddProductDto } from './product.dto';
 
 
 @Injectable()
 export class ProductService {
 
-    // creating product array for now
-    products: Product[] = []
-
     constructor(@InjectModel('Product') private ProductModel: Model<Product>) { }
 
     // creating function that'll  insert product in that "products" array
-    async insertProduct(title: string, description: string, price: number) {
+    async insertProduct(addProductDto: AddProductDto) {
         // creating new product instance
-        const newProduct = await new this.ProductModel({ title: title, description: description, price: price })
+        const newProduct = await new this.ProductModel({
+            title: addProductDto.title,
+            description: addProductDto.description,
+            price: addProductDto.price
+        })
         await newProduct.save()
         return newProduct
 
@@ -42,32 +44,25 @@ export class ProductService {
 
     // function for update product by id
     async updateProduct(prodId: string, prodTitle: string, prodDescription: string, prodPrice: number) {
-
-
         try {
             const updatedProduct = await this.ProductModel.findById(prodId)
-            console.log(updatedProduct)
-
-            if (prodTitle) {
-                updatedProduct.title = prodTitle
-            }
-
-            if (prodDescription) {
-                updatedProduct.description = prodDescription
-            }
-
-            if (prodPrice) {
-                updatedProduct.price = prodPrice
-            }
-
+            if (prodTitle) { updatedProduct.title = prodTitle }
+            if (prodDescription) { updatedProduct.description = prodDescription }
+            if (prodPrice) { updatedProduct.price = prodPrice }
             await updatedProduct.save()
         }
-
         catch (e) {
             throw new Error('failed to update')
         }
+    }
 
-
+    // function for deleting product by id
+    async deleteProductById(prodId: string) {
+        try {
+            await this.ProductModel.findByIdAndDelete(prodId)
+        } catch (error) {
+            throw error
+        }
     }
 
 

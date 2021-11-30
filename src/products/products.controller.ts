@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Get, Param, Patch } from "@nestjs/common";
+import { AddProductDto } from './product.dto';
+import { Controller, Post, Body, Get, Param, Patch, Delete } from "@nestjs/common";
 import { ProductService } from "./products.service";
 
-@Controller('products')
+  @Controller('products')
 export class ProductController {
 
   // injecting service to add controller function
@@ -12,11 +13,9 @@ export class ProductController {
   // there is body decorator which we use to configure req body parameters
   @Post()
   async addProduct(
-    @Body('title') productTitle: string,
-    @Body('description') productDesc: string,
-    @Body('price') productPrice: number
+    @Body() addProductDto: AddProductDto
   ) {
-    await this.productService.insertProduct(productTitle, productDesc, productPrice)
+    await this.productService.insertProduct(addProductDto)
     return { message: "Product created" }
   }
 
@@ -41,9 +40,14 @@ export class ProductController {
     @Body('description') prodDescription: string,
     @Body('price') prodPrice: number
   ) {
-    const updatedProduct = await this.productService.updateProduct(prodId, prodTitle, prodDescription, prodPrice)
+    await this.productService.updateProduct(prodId, prodTitle, prodDescription, prodPrice)
     return { message: "product updated" }
   }
 
+  @Delete('id')
+  async deleteOneProduct(@Param('id') prodId: string) {
+      await this.productService.deleteProductById(prodId)
+      return {message:"product deleted"}
+  }
 
 }
